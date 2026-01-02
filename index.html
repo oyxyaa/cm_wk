@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我是测量小能手 </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', '微软雅黑', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            background-color: #fff9e6;
+            color: #333;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom, #fff9e6, #ffecc6);
+            touch-action: manipulation;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(255, 153, 0, 0.15);
+            border: 5px solid #ffaa00;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: #ff6600;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 0 #ffcc99;
+            background: linear-gradient(to right, #ff6600, #ff9900);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            color: #ff9933;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .workspace {
+            flex: 3;
+            min-width: 300px;
+            background-color: #fff5e6;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #ffcc80;
+            position: relative;
+            min-height: 450px;
+            overflow: hidden;
+            touch-action: none;
+            box-shadow: inset 0 0 10px rgba(255, 153, 0, 0.1);
+        }
+        
+        .controls {
+            flex: 2;
+            min-width: 250px;
+            background-color: #fff5e6;
+            border-radius: 15px;
+            padding: 20px;
+            border: 3px solid #ffcc80;
+            box-shadow: 0 5px 15px rgba(255, 153, 0, 0.1);
+        }
+        
+        h2 {
+            color: #ff6600;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+            border-bottom: 3px solid #ffcc80;
+            padding-bottom: 8px;
+        }
+        
+        .instruction-box {
+            background-color: #fff0cc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ff9900;
+            box-shadow: 0 3px 8px rgba(255, 153, 0, 0.1);
+        }
+        
+        .instruction-box h3 {
+            color: #ff6600;
+            margin-bottom: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .instruction-box ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .instruction-box li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .measurement-object {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 2px solid;
+            user-select: none;
+            z-index: 5;
+            background-color: #f0f0f0;
+        }
+        
+        /* 根据图片重新设计的尺子样式 */
+        .ruler {
+            position: absolute;
+            width: 480px; /* 15厘米 + 两侧留白 */
+            height: 60px; /* 比原图略高一些以便操作 */
+            background-color: #fff;
+            cursor: move;
+            user-select: none;
+            z-index: 10;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+            transform-origin: left center;
+            overflow: visible;
+            border-radius: 3px;
+            touch-action: none;
+            border: 1px solid #aaa;
+            border-top: 1px solid #777;
+        }
+        
+        /* 尺子主体颜色 - 模拟图片中的浅黄色 */
+        .ruler-body {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #fffbe6;
+            z-index: 1;
+            border-radius: 2px;
+        }
+        
+        /* 刻度线容器 - 精确对齐 */
+        .ruler-scale {
+            position: absolute;
+            width: 450px; /* 15厘米区域 */
+            height: 100%;
+            top: 0;
+            left: 15px; /* 左侧留出空白 */
+            z-index: 2;
+        }
+        
+        /* 刻度线基础样式 */
+        .scale-mark {
+            position: absolute;
+            background-color: #000;
+        }
+        
+        /* 厘米长刻度线 - 从顶部开始 */
+        .cm-scale {
+            width: 2px;
+            height: 30px; /* 长刻度线高度 */
+            top: 0;
+        }
+        
+        /* 半厘米刻度线 */
+        .half-cm-scale {
+            width: 1.5px;
+            height: 20px;
+            top: 0;
+            background-color: #333;
+        }
+        
+        /* 毫米刻度线 */
+        .mm-scale {
+            width: 1px;
+            height: 12px;
+            top: 0;
+            background-color: #666;
+        }
+        
+        /* 厘米数字 - 在刻度线下方，与图片一致 */
+        .cm-number {
+            position: absolute;
+            top: 32px; /* 在刻度线下方 */
+            font-weight: bold;
+            font-size: 14px;
+            color: #000;
+            text-align:center;
+            width: 20px;
+            transform: translateX(-50%);
+            font-family: Arial, sans-serif;
+            z-index: 3;
+        }
+        
+        /* 尺子上的cm标识 */
+        .ruler-label {
+            position: absolute;
+            top: 35px;
+            right: 20px;
+            font-size: 10px;
+            color: #666;
+            font-weight: bold;
+            z-index: 3;
+        }
+        
+        /* 尺子上的零刻度线强调 */
+        .zero-mark {
+            position: absolute;
+            left: 15px;
+            top: 0;
+            width: 2px;
+            height: 35px;
+            background-color: #000;
+            z-index: 4;
+        }
+        
+        .button {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: linear-gradient(to bottom, #ff9900, #ff6600);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            touch-action: manipulation;
+            box-shadow: 0 4px 0 #cc6600;
+        }
+        
+        .button:hover {
+            background: linear-gradient(to bottom, #ffaa00, #ff7700);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #cc6600;
+        }
+        
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #cc6600;
+        }
+        
+        .input-group {
+            margin: 25px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+            color: #ff6600;
+            font-weight: bold;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.5rem;
+            border: 3px solid #ffcc80;
+            border-radius: 10px;
+            text-align: center;
+            color: #ff6600;
+            font-weight: bold;
+            background-color: #fff9e6;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #ff9900;
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.2);
+        }
+        
+        .feedback-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            display: none;
+        }
+        
+        .feedback-content {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            animation: popIn 0.5s;
+            border: 5px solid;
+        }
+        
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .feedback-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+        
+        .correct .feedback-icon {
+            color: #00cc66;
+        }
+        
+        .incorrect .feedback-icon {
+            color: #ff6666;
+        }
+        
+        .feedback-content h3 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .correct h3 {
+            color: #00cc66;
+        }
+        
+        .incorrect h3 {
+            color: #ff6666;
+        }
+        
+        .feedback-content p {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .correct-answer {
+            font-size: 1.4rem;
+            color: #ff6600;
+            font-weight: bold;
+            margin: 15px 0;
+            background-color: #fff5e6;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ffcc80;
+        }
+        
+        .close-btn {
+            padding: 12px 30px;
+            background: linear-gradient(to bottom, #ff9900, #ff6600);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 0 #cc6600;
+        }
+        
+        .close-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #cc6600;
+        }
+        
+        .measurement-tips {
+            background-color: #fff0cc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 5px solid #ff9900;
+            box-shadow: 0 3px 8px rgba(255, 153, 0, 0.1);
+        }
+        
+        .measurement-tips h4 {
+            color: #cc6600;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #ff9933;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        /* 移动端优化样式 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .main-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .workspace {
+                min-height: 350px;
+                padding: 15px;
+            }
+            
+            .controls {
+                padding: 15px;
+            }
+            
+            .button {
+                padding: 20px;
+                font-size: 1.3rem;
+                min-height: 60px;
+            }
+            
+            input[type="number"] {
+                font-size: 1.8rem;
+                padding: 15px;
+                min-height: 60px;
+            }
+            
+            .ruler {
+                width: 320px;
+                height: 50px;
+            }
+            
+            .ruler-scale {
+                width: 300px;
+                left: 10px;
+            }
+            
+            .cm-number {
+                font-size: 12px;
+            }
+            
+            .feedback-content {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .feedback-content h3 {
+                font-size: 2rem;
+            }
+            
+            .feedback-icon {
+                font-size: 4rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 10px;
+                border-radius: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .workspace {
+                min-height: 300px;
+            }
+            
+            .ruler {
+                width: 280px;
+                height: 45px;
+            }
+            
+            .ruler-scale {
+                width: 260px;
+                left: 10px;
+            }
+            
+            .cm-scale {
+                height: 25px;
+            }
+            
+            .half-cm-scale {
+                height: 18px;
+            }
+            
+            .mm-scale {
+                height: 10px;
+            }
+            
+            .cm-number {
+                top: 26px;
+                font-size: 10px;
+            }
+        }
+        
+        /* 横屏模式优化 */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .main-content {
+                flex-direction: row;
+            }
+            
+            .workspace {
+                min-height: 300px;
+            }
+        }
+        
+        /* 触摸反馈效果 */
+        .touch-feedback {
+            animation: touchEffect 0.3s;
+        }
+        
+        @keyframes touchEffect {
+            0% { transform: scale(1); }
+            50% { transform: scale(0.95); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 示例测量对象（类似图片中的灰色矩形） */
+        .example-object {
+            background-color: #808080;
+            border-color: #666;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        <img src="../IdeaProjects/untitled2/favicon.ico"/></style>
+</head>
+<body>
+    <div class="container" >
+        <header>
+            <h1>我是测量小能手<img src="图片4.png" width="100"></h1>
+            <div class="subtitle">人教版小学数学二年级上册 - 认识厘米</div>
+        </header>
+
+        <div class="main-content">
+            <div class="workspace" id="workspace">
+                <!-- 测量物体将在这里生成 -->
+                <!-- 尺子将在这里生成 -->
+            </div>
+            
+            <div class="controls">
+                <div class="instruction-box">
+                    <h3>使用说明</h3>
+                    <ul>
+                        <li><strong>移动尺子</strong>：用鼠标拖动或用手指滑动尺子</li>
+                        <li><strong>旋转尺子</strong>：在尺子上滚动鼠标滚轮或用双指旋转</li>
+                        <li><strong>测量方法</strong>：将尺子的0刻度对准物体一端，读取物体另一端对应的刻度</li>
+                    </ul>
+                    <p>提示：测量时尺子要与物体的边平行，眼睛要正对刻度线哦！</p>
+                </div>
+                
+                <button class="button" id="generateBtn">
+                    <i class="fas fa-random"></i> 随机生成测量物体
+                </button>
+                
+                <div class="input-group">
+                    <label for="measurementInput">我测量的长度是：</label>
+                    <input type="number" id="measurementInput" placeholder="输入厘米数" min="1" max="14">
+                </div>
+                
+                <button class="button" id="submitBtn">
+                    <i class="fas fa-check-circle"></i> 提交答案
+                </button>
+                
+                <div class="measurement-tips">
+                    <h4>测量小贴士</h4>
+                    <p>1. 将尺子的0刻度线对准物体起点</p>
+                    <p>2. 尺子要与被测物体平行</p>
+                    <p>3. 读数时眼睛要正对刻度线，避免歪斜</p>
+                    <p>4. 记录测量结果时不要忘记单位"厘米"</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Copyright©2026 23小教1欧阳老师、谢老师版权所有 </p>
+        </footer>
+    </div>
+    
+    <!-- 答对反馈弹窗 -->
+    <div class="feedback-overlay" id="correctOverlay">
+        <div class="feedback-content correct">
+            <div class="feedback-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h3>太棒了！答对了！</h3>
+            <p>你真是个测量小能手！<br>测量方法完全正确，继续加油！</p>
+            <div class="correct-answer">这个物体的长度是 <span id="correctLength"></span> 厘米</div>
+            <button class="close-btn" id="closeCorrectBtn">继续测量</button>
+        </div>
+    </div>
+    
+    <!-- 答错反馈弹窗 -->
+    <div class="feedback-overlay" id="incorrectOverlay">
+        <div class="feedback-content incorrect">
+            <div class="feedback-icon">
+                <i class="fas fa-redo-alt"></i>
+            </div>
+            <h3>再试一试</h3>
+            <p>测量结果不太准确哦！</p>
+            <div class="correct-answer">正确答案是 <span id="incorrectLength"></span> 厘米</div>
+            <p>请检查：尺子0刻度是否对准物体起点？尺子是否与物体平行？读数是否正确？</p>
+            <button class="close-btn" id="closeIncorrectBtn">再量一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 定义物体列表 - 所有物体的最大长度都小于12厘米
+        const objects = [
+            { 
+                name: "短铅笔", 
+                minLength: 5,
+                maxLength: 10,
+                color: "#ffcc99", 
+                borderColor: "#ff9933"
+            },
+            { 
+                name: "橡皮", 
+                minLength: 2,
+                maxLength: 5,
+                color: "#ffcccc", 
+                borderColor: "#ff6666"
+            },
+            { 
+                name: "蜡笔", 
+                minLength: 6,
+                maxLength: 9,
+                color: "#ccffcc", 
+                borderColor: "#66cc66"
+            },
+            { 
+                name: "小刀", 
+                minLength: 7,
+                maxLength: 10,
+                color: "#cccccc", 
+                borderColor: "#999999"
+            },
+            { 
+                name: "书签", 
+                minLength: 8,
+                maxLength: 11,
+                color: "#ffccff", 
+                borderColor: "#cc66cc"
+            },
+            { 
+                name: "卡片", 
+                minLength: 7,
+                maxLength: 10,
+                color: "#ffffcc", 
+                borderColor: "#cccc00"
+            },
+            { 
+                name: "回形针", 
+                minLength: 2,
+                maxLength: 4,
+                color: "#ccddff", 
+                borderColor: "#6699ff"
+            },
+            { 
+                name: "胶棒", 
+                minLength: 5,
+                maxLength: 8,
+                color: "#ffccdd", 
+                borderColor: "#ff6699"
+            }
+        ];
+        
+        // 当前物体信息
+        let currentObject = null;
+        let currentLength = 0;
+        
+        // 尺子元素和状态
+        let ruler = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+        let rotation = 0;
+        
+        // 触摸相关变量
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let initialDistance = 0;
+        
+        // DOM元素
+        const workspace = document.getElementById('workspace');
+        const generateBtn = document.getElementById('generateBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const measurementInput = document.getElementById('measurementInput');
+        const correctOverlay = document.getElementById('correctOverlay');
+        const incorrectOverlay = document.getElementById('incorrectOverlay');
+        const closeCorrectBtn = document.getElementById('closeCorrectBtn');
+        const closeIncorrectBtn = document.getElementById('closeIncorrectBtn');
+        const correctLengthSpan = document.getElementById('correctLength');
+        const incorrectLengthSpan = document.getElementById('incorrectLength');
+        
+        // 根据图片精确创建尺子
+        function createRuler() {
+            ruler = document.createElement('div');
+            ruler.className = 'ruler';
+            ruler.id = 'ruler';
+            ruler.style.left = '80px';
+            ruler.style.top = '250px';
+            
+            // 尺子主体（浅黄色背景）
+            const rulerBody = document.createElement('div');
+            rulerBody.className = 'ruler-body';
+            ruler.appendChild(rulerBody);
+            
+            // 刻度线容器
+            const rulerScale = document.createElement('div');
+            rulerScale.className = 'ruler-scale';
+            
+            // 根据图片创建0-15厘米刻度
+            // 每厘米30像素，与图片比例保持一致
+            for (let cm = 0; cm <= 15; cm++) {
+                const cmPosition = cm * 30; // 每厘米30px
+                
+                // 厘米刻度线（长线，从顶部开始）
+                const cmScale = document.createElement('div');
+                cmScale.className = 'scale-mark cm-scale';
+                cmScale.style.left = `${cmPosition}px`;
+                rulerScale.appendChild(cmScale);
+                
+                // 厘米数字（在刻度线下方）
+                if (cm <= 15) {
+                    const cmNumber = document.createElement('div');
+                    cmNumber.className = 'cm-number';
+                    cmNumber.textContent = cm;
+                    cmNumber.style.left = `${cmPosition}px`;
+                    rulerScale.appendChild(cmNumber);
+                }
+                
+                // 在每个厘米内添加毫米刻度
+                if (cm < 15) {
+                    for (let mm = 1; mm <= 9; mm++) {
+                        const mmPosition = cmPosition + (mm * 3); // 每毫米3px
+                        
+                        let scale;
+                        if (mm === 5) {
+                            // 半厘米刻度（中线）
+                            scale = document.createElement('div');
+                            scale.className = 'scale-mark half-cm-scale';
+                            scale.style.left = `${mmPosition}px`;
+                        } else {
+                            // 毫米刻度（短线）
+                            scale = document.createElement('div');
+                            scale.className = 'scale-mark mm-scale';
+                            scale.style.left = `${mmPosition}px`;
+                        }
+                        
+                        rulerScale.appendChild(scale);
+                    }
+                }
+            }
+            
+            ruler.appendChild(rulerScale);
+            
+            // 添加零刻度线强调
+            const zeroMark = document.createElement('div');
+            zeroMark.className = 'zero-mark';
+            ruler.appendChild(zeroMark);
+            
+            // 添加cm标识
+            const rulerLabel = document.createElement('div');
+            rulerLabel.className = 'ruler-label';
+            rulerLabel.textContent = 'cm';
+            rulerLabel.style.right = '20px';
+            ruler.appendChild(rulerLabel);
+            
+            // 添加事件监听
+            ruler.addEventListener('mousedown', startDragging);
+            ruler.addEventListener('wheel', rotateRuler);
+            
+            // 添加触摸支持
+            addTouchSupport();
+            
+            workspace.appendChild(ruler);
+        }
+        
+        // 添加触摸支持
+        function addTouchSupport() {
+            ruler.addEventListener('touchstart', handleTouchStart, { passive: false });
+            ruler.addEventListener('touchmove', handleTouchMove, { passive: false });
+            ruler.addEventListener('touchend', handleTouchEnd);
+            
+            // 添加双指旋转支持
+            ruler.addEventListener('touchstart', handlePinchStart, { passive: false });
+            ruler.addEventListener('touchmove', handlePinchMove, { passive: false });
+        }
+        
+        // 触摸开始
+        function handleTouchStart(e) {
+            if (e.touches.length === 1) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                
+                const rect = ruler.getBoundingClientRect();
+                dragOffset.x = touch.clientX - rect.left;
+                dragOffset.y = touch.clientY - rect.top;
+                
+                isDragging = true;
+                
+                // 添加触摸反馈效果
+                ruler.classList.add('touch-feedback');
+                setTimeout(() => {
+                    ruler.classList.remove('touch-feedback');
+                }, 300);
+            }
+        }
+        
+        // 触摸移动
+        function handleTouchMove(e) {
+            if (!isDragging || e.touches.length !== 1) return;
+            e.preventDefault();
+            
+            const touch = e.touches[0];
+            const workspaceRect = workspace.getBoundingClientRect();
+            
+            let newX = touch.clientX - workspaceRect.left - dragOffset.x;
+            let newY = touch.clientY - workspaceRect.top - dragOffset.y;
+            
+            // 允许尺子向左移出工作区最多100px，以便零刻度对准物体
+            // 允许向上移出工作区最多50px
+            const maxLeftOffset = 100;
+            const maxTopOffset = 50;
+            
+            // 向右移动限制：不能让尺子完全移出右侧
+            const maxRightX = workspaceRect.width - 50;
+            
+            // 向下移动限制：不能让尺子完全移出底部
+            const maxBottomY = workspaceRect.height - 30;
+            
+            // 应用新的限制
+            newX = Math.max(-maxLeftOffset, Math.min(newX, maxRightX));
+            newY = Math.max(-maxTopOffset, Math.min(newY, maxBottomY));
+            
+            ruler.style.left = `${newX}px`;
+            ruler.style.top = `${newY}px`;
+        }
+        
+        // 触摸结束
+        function handleTouchEnd() {
+            isDragging = false;
+        }
+        
+        // 双指旋转开始
+        function handlePinchStart(e) {
+            if (e.touches.length === 2) {
+                initialDistance = getDistance(e.touches[0], e.touches[1]);
+            }
+        }
+        
+        // 双指旋转移动
+        function handlePinchMove(e) {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = getDistance(e.touches[0], e.touches[1]);
+                const scale = currentDistance / initialDistance;
+                
+                // 根据缩放比例计算旋转角度
+                const angleChange = (scale - 1) * 45;
+                rotation = Math.max(-45, Math.min(45, rotation + angleChange));
+                ruler.style.transform = `rotate(${rotation}deg)`;
+                
+                initialDistance = currentDistance;
+            }
+        }
+        
+        // 计算两点间距离
+        function getDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+        
+        // 开始拖拽尺子
+        function startDragging(e) {
+            isDragging = true;
+            const rect = ruler.getBoundingClientRect();
+            dragOffset.x = e.clientX - rect.left;
+            dragOffset.y = e.clientY - rect.top;
+            
+            document.addEventListener('mousemove', dragRuler);
+            document.addEventListener('mouseup', stopDragging);
+            
+            e.preventDefault();
+        }
+        
+        // 拖拽尺子
+        function dragRuler(e) {
+            if (!isDragging) return;
+            
+            const workspaceRect = workspace.getBoundingClientRect();
+            let newX = e.clientX - workspaceRect.left - dragOffset.x;
+            let newY = e.clientY - workspaceRect.top - dragOffset.y;
+            
+            // 允许尺子向左移出工作区最多100px，以便零刻度对准物体
+            // 允许向上移出工作区最多50px
+            const maxLeftOffset = 100;
+            const maxTopOffset = 50;
+            
+            // 向右移动限制：不能让尺子完全移出右侧
+            const maxRightX = workspaceRect.width - 50;
+            
+            // 向下移动限制：不能让尺子完全移出底部
+            const maxBottomY = workspaceRect.height - 30;
+            
+            // 应用新的限制
+            newX = Math.max(-maxLeftOffset, Math.min(newX, maxRightX));
+            newY = Math.max(-maxTopOffset, Math.min(newY, maxBottomY));
+            
+            ruler.style.left = `${newX}px`;
+            ruler.style.top = `${newY}px`;
+        }
+        
+        // 停止拖拽尺子
+        function stopDragging() {
+            isDragging = false;
+            document.removeEventListener('mousemove', dragRuler);
+            document.removeEventListener('mouseup', stopDragging);
+        }
+        
+        // 旋转尺子
+        function rotateRuler(e) {
+            e.preventDefault();
+            
+            // 根据滚轮方向调整旋转角度
+            if (e.deltaY < 0) {
+                rotation += 5;
+            } else {
+                rotation -= 5;
+            }
+            
+            // 限制旋转角度在-45到45度之间
+            rotation = Math.max(-45, Math.min(45, rotation));
+            
+            ruler.style.transform = `rotate(${rotation}deg)`;
+        }
+        
+        // 生成随机测量物体
+        function generateObject() {
+            // 移除之前的物体
+            const oldObject = document.querySelector('.measurement-object');
+            if (oldObject) oldObject.remove();
+            
+            // 随机选择物体类型
+            const objectType = objects[Math.floor(Math.random() * objects.length)];
+            
+            // 生成1-12厘米的物体（尺子长度为15厘米）
+            const MAX_OBJECT_LENGTH = 12;
+            const safeMaxLength = Math.min(objectType.maxLength, MAX_OBJECT_LENGTH);
+            const safeMinLength = Math.max(1, objectType.minLength);
+            const actualMinLength = Math.min(safeMinLength, safeMaxLength - 1);
+            
+            currentLength = Math.floor(Math.random() * (safeMaxLength - actualMinLength + 1)) + actualMinLength;
+            currentLength = Math.min(currentLength, MAX_OBJECT_LENGTH);
+            
+            // 如果当前长度有问题，强制设置为8厘米
+            if (currentLength >= 15 || currentLength < 1) {
+                console.warn(`物体长度异常: ${currentLength}厘米，强制设置为8厘米`);
+                currentLength = 8;
+            }
+            
+            // 计算物体宽度（1厘米 = 30像素，与尺子刻度完全一致）
+            let objectWidth = currentLength * 30;
+            
+            // 物体高度
+            let objectHeight = 60;
+            
+            // 随机位置（确保在工作区内）
+            const maxX = workspace.offsetWidth - objectWidth - 40;
+            const maxY = workspace.offsetHeight - objectHeight - 40;
+            const posX = Math.floor(Math.random() * maxX) + 20;
+            const posY = Math.floor(Math.random() * maxY) + 20;
+            
+            // 创建物体
+            const object = document.createElement('div');
+            object.className = 'measurement-object';
+            object.textContent = objectType.name;
+            object.style.width = `${objectWidth}px`;
+            object.style.height = `${objectHeight}px`;
+            object.style.left = `${posX}px`;
+            object.style.top = `${posY}px`;
+            object.style.backgroundColor = objectType.color;
+            object.style.borderColor = objectType.borderColor;
+            
+            // 如果是灰色物体，添加特殊样式
+            if (objectType.color === "#cccccc") {
+                object.classList.add('example-object');
+            }
+            
+            workspace.appendChild(object);
+            currentObject = object;
+            
+            // 重置输入框
+            measurementInput.value = '';
+            measurementInput.focus();
+            
+            // 将尺子移到物体附近
+            ruler.style.left = `${Math.max(-50, posX - 80)}px`;
+            ruler.style.top = `${Math.max(0, posY + 80)}px`;
+            
+            // 重置尺子旋转角度
+            rotation = 0;
+            ruler.style.transform = `rotate(${rotation}deg)`;
+            
+            // 添加触摸反馈效果
+            generateBtn.classList.add('touch-feedback');
+            setTimeout(() => {
+                generateBtn.classList.remove('touch-feedback');
+            }, 300);
+        }
+        
+        // 提交答案
+        function submitAnswer() {
+            const userAnswer = parseInt(measurementInput.value);
+            
+            if (isNaN(userAnswer) || userAnswer < 1 || userAnswer > 12) {
+                alert('请输入1到12之间的整数！');
+                return;
+            }
+            
+            // 显示正确答案
+            correctLengthSpan.textContent = currentLength;
+            incorrectLengthSpan.textContent = currentLength;
+            
+            if (userAnswer === currentLength) {
+                // 答对了
+                correctOverlay.style.display = 'flex';
+            } else {
+                // 答错了
+                incorrectOverlay.style.display = 'flex';
+            }
+            
+            // 添加触摸反馈效果
+            submitBtn.classList.add('touch-feedback');
+            setTimeout(() => {
+                submitBtn.classList.remove('touch-feedback');
+            }, 300);
+        }
+        
+        // 初始化
+        function init() {
+            createRuler();
+            generateObject();
+            
+            // 事件监听
+            generateBtn.addEventListener('click', generateObject);
+            submitBtn.addEventListener('click', submitAnswer);
+            measurementInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    submitAnswer();
+                }
+            });
+            
+            closeCorrectBtn.addEventListener('click', function() {
+                correctOverlay.style.display = 'none';
+                generateObject();
+            });
+            
+            closeIncorrectBtn.addEventListener('click', function() {
+                incorrectOverlay.style.display = 'none';
+                measurementInput.focus();
+                measurementInput.select();
+            });
+            
+            // 初始提示
+            setTimeout(() => {
+                alert("欢迎来到《认识厘米》测量练习！\n使用说明：\n1. 拖动尺子到物体旁边\n2. 将0刻度对准物体起点\n3. 读取物体另一端对应的刻度\n4. 输入测量结果并提交");
+            }, 500);
+        }
+        
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
